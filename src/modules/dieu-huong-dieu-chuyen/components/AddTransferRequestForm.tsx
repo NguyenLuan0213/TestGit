@@ -72,6 +72,7 @@ const AddTransfersRequestForm: React.FC<AddTransfersRequestFormProps> = ({ onUpd
         });
     };
 
+    console.log("AddTransfersRequestForm render");
     return (
         <Form
             labelCol={{ span: 7 }}
@@ -113,6 +114,8 @@ const AddTransfersRequestForm: React.FC<AddTransfersRequestFormProps> = ({ onUpd
                     ))}
                 </Select>
             </Form.Item>
+
+
 
             <Form.Item label="Chức vụ từ" name="positionFrom" rules={[{ required: true, message: 'Vui lòng nhập chức vụ từ!' }]}>
                 <Input value={selectedRole} />
