@@ -71,8 +71,6 @@ const AddTransfersRequestForm: React.FC<AddTransfersRequestFormProps> = ({ onUpd
             }
         });
     };
-
-    console.log("AddTransfersRequestForm render");
     return (
         <Form
             labelCol={{ span: 7 }}
@@ -146,3 +144,4 @@ const AddTransfersRequestForm: React.FC<AddTransfersRequestFormProps> = ({ onUpd
 }
 
 export default AddTransfersRequestForm;
+      
