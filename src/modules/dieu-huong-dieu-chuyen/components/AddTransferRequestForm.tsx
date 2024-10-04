@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { Form, Button, Select, Input } from "antd";
-import { TransfersRequest } from "../data/transfer_request";
-import { addTransfersRequest } from "../services/transfers_request_services";
-import { useUserRole } from "../../../hooks/UserRoleContext";
+import { Form, Button, Select, Input, message, Modal } from "antd";
+//import dữ liệu
 import { Departments } from "../../phong-ban/data/department_data";
+import { TransfersRequest, TransferRequestStatus } from "../data/transfer_request";
+//import services
+import { addTransfersRequest } from "../services/transfers_request_services";
 import { getDepartment } from "../../phong-ban/services/department_services";
+//import hooks
+import { useUserRole } from "../../../hooks/UserRoleContext";
 
 interface AddTransfersRequestFormProps {
     onUpdate: (transfersRequest: TransfersRequest) => void;
     onCancel: () => void;
 }
 
-const addTransfersRequestForm: React.FC<AddTransfersRequestFormProps> = ({ onUpdate, onCancel }) => {
-    const [form] = Form.useForm();
+const AddTransfersRequestForm: React.FC<AddTransfersRequestFormProps> = ({ onUpdate, onCancel }) => {
+    const [form] = Form.useForm<TransfersRequest>();
     const { selectedId, selectedRole, selectedDepartmentId } = useUserRole();
     const [departments, setDepartments] = useState<Departments[]>([]);
     const [locationTo, setLocationTo] = useState<string>("");
@@ -29,7 +32,7 @@ const addTransfersRequestForm: React.FC<AddTransfersRequestFormProps> = ({ onUpd
     // Hiển thị dữ liệu cần update
     useEffect(() => {
         form.setFieldsValue({
-            departmentIdFrom: selectedDepartmentId,
+            departmentIdFrom: selectedDepartmentId || 0,
             positionFrom: selectedRole,
             locationFrom: departments.find(department => department.id === selectedDepartmentId)?.location,
         });
@@ -44,26 +47,32 @@ const addTransfersRequestForm: React.FC<AddTransfersRequestFormProps> = ({ onUpd
     };
 
     // Hàm thêm yêu cầu điều chuyển
-    const handleAddTransfersRequest = async (values: any) => {
-        const transfersRequest: TransfersRequest = {
-            ...values,
-            createdByEmployeeId: selectedId,
-            departmentIdFrom: selectedDepartmentId,
-            positionFrom: selectedRole,
-            status: 'DRAFT',
-            createdAt: new Date(),
-            updatedAt: null,
-        };
-        try {
-            const addedTransfersRequest = await addTransfersRequest(transfersRequest);
-            onUpdate(addedTransfersRequest);  // Chỉ gọi cập nhật sau khi thành công
-            alert('Thêm yêu cầu điều chuyển mới thành công');
-        } catch (error) {
-            console.error('Thêm yêu cầu điều chuyển mới thất bại:', error);
-            alert('Thêm yêu cầu điều chuyển mới thất bại');
-        }
+    const handleAddTransfersRequest = async (values: TransfersRequest) => {
+        Modal.confirm({
+            title: 'Xác nhận thêm yêu cầu điều chuyển',
+            content: 'Bạn có chắc chắn muốn thêm yêu cầu điều chuyển này không?',
+            async onOk() {
+                const transfersRequest: TransfersRequest = {
+                    ...values,
+                    createdByEmployeeId: selectedId || 0, // Provide a default value of 0 if selectedId is undefined
+                    departmentIdFrom: selectedDepartmentId || 0,
+                    positionFrom: selectedRole || "",
+                    status: TransferRequestStatus.DRAFT,
+                    createdAt: new Date(),
+                    updatedAt: null,
+                };
+                try {
+                    const addedTransfersRequest = await addTransfersRequest(transfersRequest);
+                    onUpdate(addedTransfersRequest);  // Chỉ gọi cập nhật sau khi thành công
+                    message.success('Thêm yêu cầu điều chuyển mới thành công');
+                } catch (error) {
+                    message.error(`Thêm yêu cầu điều chuyển mới thất bại : ${error}`);
+                }
+            }
+        });
     };
 
+    console.log("AddTransfersRequestForm render");
     return (
         <Form
             labelCol={{ span: 7 }}
@@ -106,6 +115,8 @@ const addTransfersRequestForm: React.FC<AddTransfersRequestFormProps> = ({ onUpd
                 </Select>
             </Form.Item>
 
+
+
             <Form.Item label="Chức vụ từ" name="positionFrom" rules={[{ required: true, message: 'Vui lòng nhập chức vụ từ!' }]}>
                 <Input value={selectedRole} />
             </Form.Item>
@@ -124,14 +135,14 @@ const addTransfersRequestForm: React.FC<AddTransfersRequestFormProps> = ({ onUpd
 
             <Form.Item>
                 <Button type="primary" htmlType="submit">
-                    Submit
+                    Đồng ý
                 </Button>
                 <Button style={{ marginLeft: 8 }} onClick={onCancel}>
-                    Cancel
+                    Hủy bỏ
                 </Button>
             </Form.Item>
         </Form>
     );
 }
 
-export default addTransfersRequestForm;
+export default AddTransfersRequestForm;

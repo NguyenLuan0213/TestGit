@@ -1,7 +1,5 @@
 //Import thư viện dayjs và các plugin cần thiết
 import dayjs from 'dayjs';
-dayjs.extend(isBetween);
-dayjs.extend(quarterOfYear);
 import isBetween from 'dayjs/plugin/isBetween';
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'; // Thêm import cho quarterOfYear
 //Import dữ liệu
@@ -10,6 +8,8 @@ import { mockTransfersRequest } from "../../dieu-huong-dieu-chuyen/data/transfer
 import { mockEmployees } from "../../nhan-vien/data/employees_data"
 //Import service
 import { updateEmployee } from "../../nhan-vien/services/employee_services"
+dayjs.extend(isBetween);
+dayjs.extend(quarterOfYear);
 
 // Hàm lấy danh sách quyết định điều chuyển
 export const getTransfersDecisions = async (): Promise<TransferDecision[]> => {
